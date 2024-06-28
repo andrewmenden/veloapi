@@ -1,15 +1,19 @@
-#define RUNTEST
+//#define RUNTEST
 
 #ifdef RUNTEST
 
 #include <veloDebug.hpp>
 #include <iostream>
 
+//            01234 567890 12345678
+char* test = "test1\0test2\0test3";
+
 int main()
 {
-    VELOMESSAGE(test);
+    std::cout << test << '\n';
+    std::cout << test + strlen(test) + 1 << '\n';
 
-    veloPrintMessages(std::cout);
+    return 0;
 }
 
 #else

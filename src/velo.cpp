@@ -3,6 +3,10 @@
 static int currentID = 1;
 static int globalItemWidth = 70;
 
+#define RENDER_LABEL_FLAGS_NONE 0
+#define RENDER_LABEL_FLAGS_NO_LABEL 0x1
+#define RENDER_LABEL_FLAGS_NO_TOOLTIP 0x10
+
 void veloPushID()
 {
     ImGui::PushID(currentID++);
@@ -11,25 +15,28 @@ void veloPopID()
 {
     ImGui::PopID();
 }
-void veloRenderLabel(const char* label, const char* tooltip)
+void veloRenderLabel(const char* label, const char* tooltip, uint8_t flags)
 {
-    if (strlen(label) > 0)
+    if (strlen(label) > 0 && (flags & RENDER_LABEL_FLAGS_NO_LABEL) != 1)
     {
         ImGui::SameLine();
         ImGui::Text("%s", label);
     }
-    if (ImGui::IsItemHovered() && strlen(tooltip) > 0)
+    if (ImGui::IsItemHovered() && strlen(tooltip) > 0 && (flags & RENDER_LABEL_FLAGS_NO_TOOLTIP) != 1)
     {
         ImGui::SetTooltip("%s", tooltip);
     }
 }
 
-static char* test = new char[MAX_STRING];
+const char* test = "test1\0test2\0test3";
+uint8_t* testValues = new uint8_t[3]{};
 void veloRun()
 {
     veloNewFrame();
     ImGui::Begin("testtest");
-    veloRoundingMultiplier("test", test, "test");
+    
+    veloBoolList("test", testValues, test, 3, "test tooltip");
+    
     ImGui::End();
 }
 
@@ -132,7 +139,7 @@ bool veloString(const char* label, char*& value, int maxLength, const char* tool
 
 bool veloRoundingMultiplier(const char* label, char*& value, const char* tooltip)
 {
-    //ATTENTION: we copy the string every call, in order to roll back a bad change -- possibly, there is a better way to do this!
+    //ATTENTION: we copy the string every call, in order to roll back a bad change -- possibly, there is a better way to do this
     char previous[MAX_STRING]{};
     strcpy(previous, value);
     bool t = true;
@@ -148,5 +155,27 @@ bool veloRoundingMultiplier(const char* label, char*& value, const char* tooltip
     }
     veloPopID();
     veloRenderLabel(label, tooltip);    
+    return t;
+}
+
+bool veloBoolList(const char* label, uint8_t*& value, const char* valueIdentifiers, int valueCount, const char* tooltip)
+{
+    bool t = false;
+    if (ImGui::BeginMenu(label, true))
+    {
+        int i = 0;
+        int offset = 0;
+        for (int i = 0; i < valueCount; i++)
+        {
+            veloPushID();
+            t = ImGui::Checkbox(valueIdentifiers + offset, (bool*)&value[i]);
+            veloPopID();
+
+            offset += strlen(valueIdentifiers + offset) + 1;
+        }
+        ImGui::EndMenu();
+    }
+    veloRenderLabel(label, tooltip, RENDER_LABEL_FLAGS_NO_LABEL);
+
     return t;
 }

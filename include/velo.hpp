@@ -10,7 +10,7 @@
 void veloRun();
 void veloPushID();
 void veloPopID();
-void veloRenderLabel(const char* label, const char* tooltip);
+void veloRenderLabel(const char* label, const char* tooltip, uint8_t flags = 0);
 void veloSetItemWidth(int width);
 bool veloRoundingMuliplierIsValid(char*& value);
 
@@ -88,7 +88,14 @@ bool veloRoundingMultiplier(
     const char* tooltip    
 );
 
-bool veloBoolList();
+//valueIdentifiers is of the format "words words\0more words\0so on...\0"
+bool veloBoolList(
+    const char* label,
+    uint8_t*& value,
+    const char* valueIdentifiers,
+    int valueCount,
+    const char* tooltip
+);
 bool veloStringList();
 bool veloEnumerator();
 bool veloColor();
